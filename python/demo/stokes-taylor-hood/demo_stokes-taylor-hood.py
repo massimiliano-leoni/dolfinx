@@ -70,24 +70,21 @@
 #
 # We first import the modules and function that the program uses::
 
-import numpy as np
-from mpi4py import MPI
-from petsc4py import PETSc
 import dolfinx
+import numpy as np
 import ufl
 from dolfinx import DirichletBC, Function, FunctionSpace, RectangleMesh
 from dolfinx.fem import locate_dofs_geometrical, locate_dofs_topological
 from dolfinx.io import XDMFFile
-from dolfinx.mesh import locate_entities_boundary, CellType, GhostMode
+from dolfinx.mesh import CellType, locate_entities_boundary
+from mpi4py import MPI
+from petsc4py import PETSc
 from ufl import div, dx, grad, inner
 
 # We create a Mesh and attach a coordinate map to the mesh::
 
 # Create mesh
-mesh = RectangleMesh(
-    MPI.COMM_WORLD,
-    [np.array([0, 0, 0]), np.array([1, 1, 0])], [32, 32],
-    CellType.triangle, GhostMode.none)
+mesh = RectangleMesh(MPI.COMM_WORLD, [np.array([0, 0, 0]), np.array([1, 1, 0])], [32, 32], CellType.triangle)
 
 
 # Function to mark x = 0, x = 1 and y = 0

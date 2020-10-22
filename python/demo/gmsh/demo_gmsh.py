@@ -8,14 +8,13 @@
 # Mesh generation using the GMSH python API
 # =========================================
 
+import dolfinx.gmsh
 import numpy as np
 from dolfinx import cpp
-from dolfinx.cpp.io import extract_local_entities
+from dolfinx.cpp.io import extract_local_entities, perm_gmsh
+from dolfinx.cpp.mesh import CellType
 from dolfinx.io import XDMFFile
-from dolfinx.mesh import CellType, create_mesh, create_meshtags
-from dolfinx.mesh.gmsh import (extract_gmsh_geometry,
-                               extract_gmsh_topology_and_markers, perm_gmsh,
-                               ufl_mesh_from_gmsh)
+from dolfinx.mesh import create_mesh, create_meshtags
 from mpi4py import MPI
 
 import gmsh
@@ -37,8 +36,8 @@ model.occ.synchronize()
 model.mesh.generate(3)
 
 
-# Sort mesh nodes according to their index in gmsh (Starts at 1)
-x = extract_gmsh_geometry(model, model_name="Sphere")
+# Sort mesh nodes according to their index in gmsh (starts at 1)
+x = dolfinx.gmsh.extract_geometry(model, model_name="Sphere")
 
 # Extract cells from gmsh (Only interested in tetrahedrons)
 element_types, element_tags, node_tags = model.mesh.getElements(dim=3)
@@ -47,7 +46,7 @@ name, dim, order, num_nodes, local_coords, num_first_order_nodes = model.mesh.ge
 cells = node_tags[0].reshape(-1, num_nodes) - 1
 
 
-mesh = create_mesh(MPI.COMM_SELF, cells, x, ufl_mesh_from_gmsh(element_types[0], x.shape[1]))
+mesh = create_mesh(MPI.COMM_SELF, cells, x, dolfinx.gmsh.ufl_mesh_from_gmsh(element_types[0], x.shape[1]))
 
 with XDMFFile(MPI.COMM_SELF, "mesh_rank_{}.xdmf".format(MPI.COMM_WORLD.rank), "w") as file:
     file.write_mesh(mesh)
@@ -82,13 +81,13 @@ if MPI.COMM_WORLD.rank == 0:
     model.mesh.generate(3)
 
     # Sort mesh nodes according to their index in gmsh
-    x = extract_gmsh_geometry(model, model_name="Sphere minus box")
+    x = dolfinx.gmsh.extract_geometry(model, model_name="Sphere minus box")
 
     # Broadcast cell type data and geometric dimension
     gmsh_cell_id = MPI.COMM_WORLD.bcast(model.mesh.getElementType("tetrahedron", 1), root=0)
 
     # Get mesh data for dim (0, tdim) for all physical entities
-    topologies = extract_gmsh_topology_and_markers(model, "Sphere minus box")
+    topologies = dolfinx.gmsh.extract_topology_and_markers(model, "Sphere minus box")
     cells = topologies[gmsh_cell_id]["topology"]
     cell_data = topologies[gmsh_cell_id]["cell_data"]
     num_nodes = MPI.COMM_WORLD.bcast(cells.shape[1], root=0)
@@ -102,7 +101,7 @@ else:
     marked_facets, facet_values = np.empty((0, 3)), np.empty((0,))
 
 
-mesh = create_mesh(MPI.COMM_WORLD, cells, x, ufl_mesh_from_gmsh(gmsh_cell_id, 3))
+mesh = create_mesh(MPI.COMM_WORLD, cells, x, dolfinx.gmsh.ufl_mesh_from_gmsh(gmsh_cell_id, 3))
 mesh.name = "ball_d1"
 local_entities, local_values = extract_local_entities(mesh, 2, marked_facets, facet_values)
 
@@ -132,13 +131,13 @@ if MPI.COMM_WORLD.rank == 0:
     gmsh.option.setNumber("General.Terminal", 0)
 
     # Sort mesh nodes according to their index in gmsh
-    x = extract_gmsh_geometry(model, model.getCurrent())
+    x = dolfinx.gmsh.extract_geometry(model, model.getCurrent())
 
     # Broadcast cell type data and geometric dimension
     gmsh_cell_id = MPI.COMM_WORLD.bcast(model.mesh.getElementType("tetrahedron", 2), root=0)
 
     # Get mesh data for dim (0, tdim) for all physical entities
-    topologies = extract_gmsh_topology_and_markers(model, model.getCurrent())
+    topologies = dolfinx.gmsh.extract_topology_and_markers(model, model.getCurrent())
     cells = topologies[gmsh_cell_id]["topology"]
     cell_data = topologies[gmsh_cell_id]["cell_data"]
 
@@ -154,7 +153,7 @@ else:
     marked_facets, facet_values = np.empty((0, 6)), np.empty((0,))
 
 # Permute the topology from GMSH to DOLFIN-X ordering
-domain = ufl_mesh_from_gmsh(gmsh_cell_id, 3)
+domain = dolfinx.gmsh.ufl_mesh_from_gmsh(gmsh_cell_id, 3)
 
 gmsh_tetra10 = perm_gmsh(CellType.tetrahedron, 10)
 cells = cells[:, gmsh_tetra10]
@@ -210,13 +209,13 @@ if MPI.COMM_WORLD.rank == 0:
     model.setPhysicalName(3, 1, "Mesh volume")
 
     # Sort mesh nodes according to their index in gmsh
-    x = extract_gmsh_geometry(model, model.getCurrent())
+    x = dolfinx.gmsh.extract_geometry(model, model.getCurrent())
 
     # Broadcast cell type data and geometric dimension
     gmsh_cell_id = MPI.COMM_WORLD.bcast(model.mesh.getElementType("hexahedron", 2), root=0)
 
     # Get mesh data for dim (0, tdim) for all physical entities
-    topologies = extract_gmsh_topology_and_markers(model, model.getCurrent())
+    topologies = dolfinx.gmsh.extract_topology_and_markers(model, model.getCurrent())
     cells = topologies[gmsh_cell_id]["topology"]
     cell_data = topologies[gmsh_cell_id]["cell_data"]
 
@@ -233,7 +232,7 @@ else:
 
 
 # Permute the mesh topology from GMSH ordering to DOLFIN-X ordering
-domain = ufl_mesh_from_gmsh(gmsh_cell_id, 3)
+domain = dolfinx.gmsh.ufl_mesh_from_gmsh(gmsh_cell_id, 3)
 gmsh_hex27 = perm_gmsh(CellType.hexahedron, 27)
 cells = cells[:, gmsh_hex27]
 

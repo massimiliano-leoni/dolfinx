@@ -82,7 +82,7 @@ import ufl
 from dolfinx import DirichletBC, Function, FunctionSpace, RectangleMesh, solve
 from dolfinx.fem import locate_dofs_topological
 from dolfinx.io import XDMFFile
-from dolfinx.mesh import CellType, GhostMode, locate_entities_boundary
+from dolfinx.mesh import CellType, locate_entities_boundary
 from mpi4py import MPI
 from petsc4py import PETSc
 from ufl import ds, dx, grad, inner
@@ -95,10 +95,7 @@ from ufl import ds, dx, grad, inner
 # divided into two triangles, we do as follows ::
 
 # Create mesh and define function space
-mesh = RectangleMesh(
-    MPI.COMM_WORLD,
-    [np.array([0, 0, 0]), np.array([1, 1, 0])], [32, 32],
-    CellType.triangle, GhostMode.none)
+mesh = RectangleMesh(MPI.COMM_WORLD, [np.array([0, 0, 0]), np.array([1, 1, 0])], [32, 32], CellType.triangle)
 
 V = FunctionSpace(mesh, ("Lagrange", 1))
 

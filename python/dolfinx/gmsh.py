@@ -3,13 +3,14 @@
 # This file is part of DOLFINX (https://www.fenicsproject.org)
 #
 # SPDX-License-Identifier:    LGPL-3.0-or-later
+
+"""Utility functions for interacting with Gmsh mesh data structures"""
+
 import numpy
 import ufl
 
-__all__ = ["extract_gmsh_geometry", "extract_gmsh_topology_and_markers", "ufl_mesh_from_gmsh"]
 
-
-def extract_gmsh_topology_and_markers(gmsh_model, model_name=None):
+def extract_topology_and_markers(gmsh_model, model_name=None):
     """Extract all entities tagged with a physical marker
     in the gmsh model, and collects the data per cell type.
     Returns a nested dictionary where the first key is the gmsh
@@ -26,17 +27,17 @@ def extract_gmsh_topology_and_markers(gmsh_model, model_name=None):
                              "cell_data": triangle_markers},
               MSH_tetra: {"topology": tetra_topology,
                           "cell_data": tetra_markers}}
+
     """
     if model_name is not None:
         gmsh_model.setCurrent(model_name)
-    # Get the physical groups from gmsh on the form
-    # [(dim1, tag1),(dim1, tag2), (dim2, tag3),...]
+    # Get the physical groups from gmsh on the form [(dim1, tag1),(dim1,
+    # tag2), (dim2, tag3),...]
     phys_grps = gmsh_model.getPhysicalGroups()
     topologies = {}
     for dim, tag in phys_grps:
-        # Get the entities for a given dimension:
-        # dim=0->Points, dim=1->Lines, dim=2->Triangles/Quadrilaterals
-        # etc.
+        # Get the entities for a given dimension: dim=0->Points,
+        # dim=1->Lines, dim=2->Triangles/Quadrilaterals etc.
         entities = gmsh_model.getEntitiesForPhysicalGroup(dim, tag)
 
         for entity in entities:
@@ -45,20 +46,23 @@ def extract_gmsh_topology_and_markers(gmsh_model, model_name=None):
             element_data = gmsh_model.mesh.getElements(dim, tag=entity)
             element_types, element_tags, node_tags = element_data
             assert(len(element_types) == 1)
+
             # The MSH type of the cells on the element
             element_type = element_types[0]
             num_el = len(element_tags[0])
-            # Determine number of local nodes per element to create
-            # the topology of the elements
+
+            # Determine number of local nodes per element to create the
+            # topology of the elements
             properties = gmsh_model.mesh.getElementProperties(element_type)
             name, dim, order, num_nodes, local_coords, _ = properties
-            # 2D array of shape (num_elements,num_nodes_per_element) containing
-            # the topology of the elements on this entity
+
+            # 2D array of shape (num_elements,num_nodes_per_element)
+            # containing the topology of the elements on this entity
             # NOTE: GMSH indexing starts with 1 and not zero.
             element_topology = node_tags[0].reshape(-1, num_nodes) - 1
 
-            # Gather data for each element type and the
-            # corresponding physical markers
+            # Gather data for each element type and the corresponding
+            # physical markers
             if element_type in topologies.keys():
                 topologies[element_type]["topology"] = numpy.concatenate(
                     (topologies[element_type]["topology"], element_topology), axis=0)
@@ -70,19 +74,21 @@ def extract_gmsh_topology_and_markers(gmsh_model, model_name=None):
     return topologies
 
 
-def extract_gmsh_geometry(gmsh_model, model_name=None):
-    """For a given gmsh model, extract the mesh geometry
-    as a numpy (N,3) array where the i-th row
-    corresponds to the i-th node in the mesh
+def extract_geometry(gmsh_model, model_name=None):
+    """For a given gmsh model, extract the mesh geometry as a numpy
+    (N,3) array where the i-th row corresponds to the i-th node in the
+    mesh
+
     """
     if model_name is not None:
         gmsh_model.setCurrent(model_name)
-    # Get the unique tag and coordinates for nodes
-    # in mesh
+    # Get the unique tag and coordinates for nodes in mesh
     indices, points, _ = gmsh_model.mesh.getNodes()
     points = points.reshape(-1, 3)
-    # GMSH indices starts at 1
+
+    # Gmsh indices starts at 1
     indices -= 1
+
     # Sort nodes in geometry according to the unique index
     perm_sort = numpy.argsort(indices)
     assert numpy.all(indices[perm_sort] == numpy.arange(len(indices)))
@@ -102,9 +108,10 @@ _gmsh_to_cells = {1: ("interval", 1), 2: ("triangle", 1),
 
 
 def ufl_mesh_from_gmsh(gmsh_cell: int, gdim: int):
-    """
-    Create a UFL mesh from a Gmsh cell identifier and the geometric dimension.
-    See: # http://gmsh.info//doc/texinfo/gmsh.html#MSH-file-format
+    """Create a UFL mesh from a Gmsh cell identifier and the geometric
+    dimension. See:
+    http://gmsh.info//doc/texinfo/gmsh.html#MSH-file-format
+
     """
     shape, degree = _gmsh_to_cells[gmsh_cell]
     cell = ufl.Cell(shape, geometric_dimension=gdim)
