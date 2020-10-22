@@ -13,10 +13,10 @@ import scipy.integrate
 import sympy as sp
 import ufl
 from dolfinx import Function, FunctionSpace
-from dolfinx.cpp.io import perm_vtk
-from dolfinx.mesh.gmsh import perm_gmsh, ufl_mesh_from_gmsh
-from dolfinx.mesh import CellType
+from dolfinx.cpp.io import perm_gmsh, perm_vtk
+from dolfinx.cpp.mesh import CellType
 from dolfinx.fem import assemble_scalar
+from dolfinx.gmsh import ufl_mesh_from_gmsh
 from dolfinx.io import XDMFFile
 from dolfinx.mesh import create_mesh
 from dolfinx_utils.test.skips import skip_in_parallel

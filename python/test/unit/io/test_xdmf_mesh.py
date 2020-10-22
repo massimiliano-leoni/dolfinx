@@ -9,7 +9,8 @@ import os
 import numpy as np
 import pytest
 from dolfinx import UnitCubeMesh, UnitIntervalMesh, UnitSquareMesh, cpp
-from dolfinx.mesh.gmsh import perm_gmsh, ufl_mesh_from_gmsh
+from dolfinx.gmsh import ufl_mesh_from_gmsh
+from dolfinx.cpp.io import perm_gmsh
 from dolfinx.cpp.mesh import CellType
 from dolfinx.io import XDMFFile
 from dolfinx.mesh import create_mesh
