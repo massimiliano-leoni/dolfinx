@@ -12,12 +12,11 @@ In real mode, the Method of Manufactured Solutions is used to produce the exact
 solution and source term."""
 
 import numpy as np
-from mpi4py import MPI
-
 from dolfinx import (Function, FunctionSpace, UnitSquareMesh,
                      has_petsc_complex, solve)
 from dolfinx.fem.assemble import assemble_scalar
 from dolfinx.io import XDMFFile
+from mpi4py import MPI
 from ufl import FacetNormal, TestFunction, TrialFunction, dx, grad, inner
 
 # wavenumber

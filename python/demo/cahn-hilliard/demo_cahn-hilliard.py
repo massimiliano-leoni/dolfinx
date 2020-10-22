@@ -113,9 +113,9 @@ import os
 import numpy as np
 from dolfinx import (Form, Function, FunctionSpace, NewtonSolver,
                      NonlinearProblem, UnitSquareMesh, log)
+from dolfinx.cpp.mesh import CellType
 from dolfinx.fem.assemble import assemble_matrix, assemble_vector
 from dolfinx.io import XDMFFile
-from dolfinx.mesh import CellType
 from mpi4py import MPI
 from petsc4py import PETSc
 from ufl import (FiniteElement, TestFunctions, TrialFunction, derivative, diff,

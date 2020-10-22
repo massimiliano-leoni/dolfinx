@@ -80,9 +80,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ufl
 from dolfinx import DirichletBC, Function, FunctionSpace, RectangleMesh, solve
+from dolfinx.cpp.mesh import CellType
 from dolfinx.fem import locate_dofs_topological
 from dolfinx.io import XDMFFile
-from dolfinx.mesh import CellType, locate_entities_boundary
+from dolfinx.mesh import locate_entities_boundary
 from mpi4py import MPI
 from petsc4py import PETSc
 from ufl import ds, dx, grad, inner
