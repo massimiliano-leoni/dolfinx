@@ -406,10 +406,10 @@ RUN wget -qO - https://deb.nodesource.com/setup_15.x | bash && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip3 install --no-cache-dir jupyter jupyterlab pyvista ipyvtk_simple ipywidgets itkwidgets
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets ipycanvas ipyevents
+RUN pip3 install --no-cache-dir jupyter jupyterlab pyvista ipygany itkwidgets
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets ipygany
 
 EXPOSE 8888/tcp
 ENV SHELL /bin/bash
 
-ENTRYPOINT ["jupyter", "lab", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
+ENTRYPOINT ["jupyter", "notebook", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
