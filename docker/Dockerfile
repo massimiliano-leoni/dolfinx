@@ -400,14 +400,12 @@ LABEL description="DOLFIN-X Jupyter Lab"
 WORKDIR /root
 
 # Dependencies for pyvista and related packages
-RUN wget -qO - https://deb.nodesource.com/setup_15.x | bash && \
-    apt-get -qq update && \
+RUN apt-get -qq update && \
     apt-get install -y libgl1-mesa-dev xvfb nodejs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip3 install --no-cache-dir jupyter jupyterlab pyvista ipygany itkwidgets
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets ipygany
+RUN pip3 install --no-cache-dir jupyter jupyterlab pyvista
 
 EXPOSE 8888/tcp
 ENV SHELL /bin/bash
