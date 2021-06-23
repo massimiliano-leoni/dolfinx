@@ -1,10 +1,15 @@
 name: Intel compilers
 
+# on:
+#   schedule:
+#     # '*' is a special character in YAML, so string must be quoted
+#     - cron: "0 2 * * TUE"
+#   workflow_dispatch: ~
+
 on:
-  schedule:
-    # '*' is a special character in YAML, so string must be quoted
-    - cron: "0 2 * * TUE"
-  workflow_dispatch: ~
+  push:
+    branches:
+      - "**"
 
 jobs:
   build:
@@ -23,9 +28,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - compiler: "Classic"
-            c_compiler: icc
-            cxx_compiler: icpc
+          # - compiler: "Classic"
+          #   c_compiler: icc
+          #   cxx_compiler: icpc
           - compiler: "LLVM-based"
             c_compiler: icx
             cxx_compiler: icpx
