@@ -54,7 +54,12 @@ public:
     {
       xt::xtensor<double, 2> c
           = xt::zeros<double>({_x.shape(0), static_cast<std::size_t>(3)});
-      xt::view(c, xt::all(), xt::range(0, _dim)) = _x;
+
+      // Issue with assignment in xtensor using Intel compilers  
+      // https://github.com/xtensor-stack/xtensor/issues/2351
+      // xt::view(c, xt::all(), xt::range(0, _dim)) = _x; //Fail
+      xt::view(c, xt::all(), xt::range(0, _dim)).assign(_x);
+
       std::swap(c, _x);
     }
   }
