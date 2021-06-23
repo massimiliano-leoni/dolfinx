@@ -100,7 +100,7 @@ xt::xtensor<double, 2> create_new_geometry(
 
   const xt::xtensor<double, 2> midpoints = mesh::midpoints(mesh, 1, edges);
   xt::view(new_vertex_coordinates, xt::range(-num_new_vertices, _), xt::all())
-      = midpoints;
+      .assign(midpoints);
 
   const std::size_t gdim = mesh.geometry().dim();
   return xt::view(new_vertex_coordinates, xt::all(), xt::range(0, gdim));
@@ -321,7 +321,8 @@ refinement::partition(const mesh::Mesh& old_mesh,
 
   auto partitioner = [](MPI_Comm mpi_comm, int, int tdim,
                         const graph::AdjacencyList<std::int64_t>& cell_topology,
-                        mesh::GhostMode) {
+                        mesh::GhostMode)
+  {
     // Find out the ghosting information
     auto [graph, info] = mesh::build_dual_graph(mpi_comm, cell_topology, tdim);
 
