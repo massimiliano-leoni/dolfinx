@@ -130,7 +130,7 @@ void assemble_cells(
       }
     }
 
-    mat_set(dofs0, dofs1, Ae, c);
+    mat_set(dofs0, dofs1, Ae);
   }
 }
 
