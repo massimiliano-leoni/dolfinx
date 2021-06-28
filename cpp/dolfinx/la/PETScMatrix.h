@@ -12,6 +12,7 @@
 #include <functional>
 #include <petscmat.h>
 #include <string>
+#include <xtl/xspan.hpp>
 
 namespace dolfinx::la
 {
@@ -41,8 +42,9 @@ public:
   /// into the matrix A (calls MatSetValuesLocal)
   /// @param[in] A The matrix to set values in
   /// @param[in] mode The PETSc insert mode (ADD_VALUES, INSERT_VALUES, ...)
-  static std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                           const std::int32_t*, const PetscScalar*)>
+  static std::function<int(const xtl::span<std::int32_t>&,
+                           const xtl::span<std::int32_t>&,
+                           const xtl::span<PetscScalar>&)>
   set_fn(Mat A, InsertMode mode);
 
   /// Return a function with an interface for adding or inserting values
@@ -50,8 +52,9 @@ public:
   /// (calls MatSetValuesBlockedLocal)
   /// @param[in] A The matrix to set values in
   /// @param[in] mode The PETSc insert mode (ADD_VALUES, INSERT_VALUES, ...)
-  static std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                           const std::int32_t*, const PetscScalar*)>
+  static std::function<int(const xtl::span<std::int32_t>&,
+                           const xtl::span<std::int32_t>&,
+                           const xtl::span<PetscScalar>&)>
   set_block_fn(Mat A, InsertMode mode);
 
   /// Return a function with an interface for adding or inserting blocked
@@ -62,8 +65,9 @@ public:
   /// @param[in] bs0 Block size for the matrix rows
   /// @param[in] bs1 Block size for the matrix columns
   /// @param[in] mode The PETSc insert mode (ADD_VALUES, INSERT_VALUES, ...)
-  static std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                           const std::int32_t*, const PetscScalar*)>
+  static std::function<int(const xtl::span<std::int32_t>&,
+                           const xtl::span<std::int32_t>&,
+                           const xtl::span<PetscScalar>&)>
   set_block_expand_fn(Mat A, int bs0, int bs1, InsertMode mode);
 
   /// Create holder for a PETSc Mat object from a sparsity pattern

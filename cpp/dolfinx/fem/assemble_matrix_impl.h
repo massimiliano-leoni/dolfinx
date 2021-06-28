@@ -39,8 +39,9 @@ void assemble_matrix(
 /// Execute kernel over cells and accumulate result in matrix
 template <typename T>
 void assemble_cells(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_set,
+    const std::function<int(const xtl::span<std::int32_t>&,
+                            const xtl::span<std::int32_t>&,
+                            const xtl::span<T>&)>& mat_set,
     const mesh::Geometry& geometry,
     const xtl::span<const std::int32_t>& active_cells,
     const std::function<void(const xtl::span<T>&,
@@ -129,15 +130,16 @@ void assemble_cells(
       }
     }
 
-    mat_set(dofs0.size(), dofs0.data(), dofs1.size(), dofs1.data(), Ae.data());
+    mat_set(dofs0, dofs1, Ae, c);
   }
 }
 
 /// Execute kernel over exterior facets and  accumulate result in Mat
 template <typename T>
 void assemble_exterior_facets(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_set,
+    const std::function<int(const xtl::span<std::int32_t>&,
+                            const xtl::span<std::int32_t>&,
+                            const xtl::span<T>&)>& mat_set,
     const mesh::Mesh& mesh, const xtl::span<const std::int32_t>& active_facets,
     const std::function<void(const xtl::span<T>&,
                              const xtl::span<const std::uint32_t>&,
@@ -241,15 +243,16 @@ void assemble_exterior_facets(
       }
     }
 
-    mat_set(dofs0.size(), dofs0.data(), dofs1.size(), dofs1.data(), Ae.data());
+    mat_set(dofs0, dofs1, Ae);
   }
 }
 
 /// Execute kernel over interior facets and  accumulate result in Mat
 template <typename T>
 void assemble_interior_facets(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_set,
+    const std::function<int(const xtl::span<std::int32_t>&,
+                            const xtl::span<std::int32_t>&,
+                            const xtl::span<T>&)>& mat_set,
     const mesh::Mesh& mesh, const xtl::span<const std::int32_t>& active_facets,
     const std::function<void(const xtl::span<T>&,
                              const xtl::span<const std::uint32_t>&,
@@ -402,18 +405,17 @@ void assemble_interior_facets(
       }
     }
 
-    mat_set(dmapjoint0.size(), dmapjoint0.data(), dmapjoint1.size(),
-            dmapjoint1.data(), Ae.data());
+    mat_set(dmapjoint0, dmapjoint1, Ae);
   }
 }
 
 template <typename T>
-void assemble_matrix(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_set,
-    const Form<T>& a, const xtl::span<const T>& constants,
-    const array2d<T>& coeffs, const std::vector<bool>& bc0,
-    const std::vector<bool>& bc1)
+void assemble_matrix(const std::function<int(const xtl::span<std::int32_t>&,
+                                             const xtl::span<std::int32_t>&,
+                                             const xtl::span<T>&)>& mat_set,
+                     const Form<T>& a, const xtl::span<const T>& constants,
+                     const array2d<T>& coeffs, const std::vector<bool>& bc0,
+                     const std::vector<bool>& bc1)
 {
   std::shared_ptr<const mesh::Mesh> mesh = a.mesh();
   assert(mesh);
