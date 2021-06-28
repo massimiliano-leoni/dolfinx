@@ -200,7 +200,8 @@ PETScMatrix::set_fn(Mat A, InsertMode mode)
     std::copy(rows.begin(), rows.end(), cache.begin());
     std::copy(cols.begin(), cols.end(), std::next(cache.begin(), rows.size()));
     const PetscInt *_rows = cache.data(), *_cols = _rows + rows.size();
-    ierr = MatSetValuesLocal(A, m, _rows, n, _cols, vals, mode);
+    ierr = MatSetValuesLocal(A, rows.size(), _rows, cols.size(), _cols,
+                             vals.data(), mode);
 #else
     ierr = MatSetValuesLocal(A, rows.size(), rows.data(), cols.size(),
                              cols.data(), vals.data(), mode);
@@ -229,7 +230,8 @@ PETScMatrix::set_block_fn(Mat A, InsertMode mode)
     std::copy(rows.begin(), rows.end(), cache.begin());
     std::copy(cols.begin(), cols.end(), std::next(cache.begin(), rows.size()));
     const PetscInt *_rows = cache.data(), *_cols = _rows + rows.size();
-    ierr = MatSetValuesBlockedLocal(A, m, _rows, n, _cols, vals, mode);
+    ierr = MatSetValuesBlockedLocal(A, rows.size(), _rows, cols.size(), _cols,
+                                    vals.data(), mode);
 #else
     ierr = MatSetValuesBlockedLocal(A, rows.size(), rows.data(), cols.size(),
                                     cols.data(), vals.data(), mode);
