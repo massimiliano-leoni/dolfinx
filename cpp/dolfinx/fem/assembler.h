@@ -164,8 +164,9 @@ void apply_lifting(
 ///  dofs the row and column are zeroed. The diagonal  entry is not set.
 template <typename T>
 void assemble_matrix(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_add,
+    const std::function<int(const xtl::span<std::int32_t>&,
+                            const xtl::span<std::int32_t>&,
+                            const xtl::span<T>&)>& mat_add,
     const Form<T>& a, const xtl::span<const T>& constants,
     const array2d<T>& coeffs,
     const std::vector<std::shared_ptr<const DirichletBC<T>>>& bcs)
@@ -211,8 +212,9 @@ void assemble_matrix(
 ///  dofs the row and column are zeroed. The diagonal  entry is not set.
 template <typename T>
 void assemble_matrix(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_add,
+    const std::function<int(const xtl::span<std::int32_t>&,
+                            const xtl::span<std::int32_t>&,
+                            const xtl::span<T>&)>& mat_add,
     const Form<T>& a,
     const std::vector<std::shared_ptr<const DirichletBC<T>>>& bcs)
 {
@@ -237,12 +239,13 @@ void assemble_matrix(
 /// If bc[i] is true then rows i in A will be zeroed. The index i is a
 /// local index.
 template <typename T>
-void assemble_matrix(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_add,
-    const Form<T>& a, const xtl::span<const T>& constants,
-    const array2d<T>& coeffs, const std::vector<bool>& dof_marker0,
-    const std::vector<bool>& dof_marker1)
+void assemble_matrix(const std::function<int(const xtl::span<std::int32_t>&,
+                                             const xtl::span<std::int32_t>&,
+                                             const xtl::span<T>&)>& mat_add,
+                     const Form<T>& a, const xtl::span<const T>& constants,
+                     const array2d<T>& coeffs,
+                     const std::vector<bool>& dof_marker0,
+                     const std::vector<bool>& dof_marker1)
 
 {
   impl::assemble_matrix(mat_add, a, constants, coeffs, dof_marker0,
@@ -260,11 +263,11 @@ void assemble_matrix(
 ///   If bc[i] is true then rows i in A will be zeroed. The index i is a
 ///   local index.
 template <typename T>
-void assemble_matrix(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& mat_add,
-    const Form<T>& a, const std::vector<bool>& dof_marker0,
-    const std::vector<bool>& dof_marker1)
+void assemble_matrix(const std::function<int(const xtl::span<std::int32_t>&,
+                                             const xtl::span<std::int32_t>&,
+                                             const xtl::span<T>&)>& mat_add,
+                     const Form<T>& a, const std::vector<bool>& dof_marker0,
+                     const std::vector<bool>& dof_marker1)
 
 {
   // Prepare constants and coefficients
@@ -287,10 +290,10 @@ void assemble_matrix(
 /// @param[in] diagonal The value to add to the diagonal for the
 ///   specified rows
 template <typename T>
-void set_diagonal(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& set_fn,
-    const xtl::span<const std::int32_t>& rows, T diagonal = 1.0)
+void set_diagonal(const std::function<int(const xtl::span<std::int32_t>&,
+                                          const xtl::span<std::int32_t>&,
+                                          const xtl::span<T>&)>& set_fn,
+                  const xtl::span<const std::int32_t>& rows, T diagonal = 1.0)
 {
   for (std::size_t i = 0; i < rows.size(); ++i)
   {
@@ -315,12 +318,12 @@ void set_diagonal(
 /// @param[in] diagonal The value to add to the diagonal for rows with a
 ///   boundary condition applied
 template <typename T>
-void set_diagonal(
-    const std::function<int(std::int32_t, const std::int32_t*, std::int32_t,
-                            const std::int32_t*, const T*)>& set_fn,
-    const fem::FunctionSpace& V,
-    const std::vector<std::shared_ptr<const DirichletBC<T>>>& bcs,
-    T diagonal = 1.0)
+void set_diagonal(const std::function<int(const xtl::span<std::int32_t>&,
+                                          const xtl::span<std::int32_t>&,
+                                          const xtl::span<T>&)>& set_fn,
+                  const fem::FunctionSpace& V,
+                  const std::vector<std::shared_ptr<const DirichletBC<T>>>& bcs,
+                  T diagonal = 1.0)
 {
   for (const auto& bc : bcs)
   {
